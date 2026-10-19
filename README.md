@@ -57,16 +57,18 @@ data/                     the supplied .DTA files
 
 The data is kept separate from the UI. To correct a question, edit its entry in `src/data/questions/` and run `npm test`.
 
-## Adding FoS.DTA (and your own WAGE1.DTA)
+## Deploying on Vercel
 
-Four Stata questions (STATA-Q28, Q29, Q30, Q32) need `FoS.DTA`, which hasn't been supplied yet. Until then they are shown with a warning and are **excluded from scoring and mock exams**. When you have the file:
+`vercel.json` pins the settings (framework Vite, build `npm run build`, output `dist`). Import the GitHub repo in Vercel and deploy the branch that contains this code. Every push redeploys automatically.
+
+## Regenerating Stata output
+
+All five data files (WAGE1, BWGHT, KIELMC, AEJfigs, FoS) are in `data/`. If a file changes:
 
 ```bash
-cp /path/to/FoS.DTA data/            # optionally also data/WAGE1.DTA
 pip install pandas statsmodels scipy wooldridge
 python scripts/stata_outputs.py      # rewrites src/data/stataOutputs.json
+npm test                             # re-checks every Stata answer against the new output
 ```
-
-Then set `answer:` and `status: 'verified'` for those four questions in `src/data/questions/stata.ts`, guided by the new output, and run `npm test`. If `data/WAGE1.DTA` is missing, the script uses the identical WAGE1 data from the `wooldridge` Python package.
 
 See [`docs/QUESTION_BANK_REPORT.md`](docs/QUESTION_BANK_REPORT.md) for the full inventory, how answers were verified, flagged questions and known limitations.

@@ -7,8 +7,8 @@
 | `_midterm_bank_of_question.pdf` | 21-page PDF, two-column LaTeX | All 211 questions (transcribed page by page from the rendered pages so matrices, tables and code boxes are exact) |
 | `formula_sheet.pdf` | 3-page PDF | Formula sheet section; formulas linked to every skill |
 | `BWGHT.DTA`, `KIELMC.DTA`, `AEJfigs.DTA` | Stata data files | Re-running Stata questions S11, S12, S20–S27 |
-| `WAGE1.DTA` | not attached yet | Taken from the standard Wooldridge WAGE1 data (`wooldridge` Python package, 526 obs). It matches every number quoted in the bank (e.g. educ = 0.5414, −2.86 interaction, R² = 0.3468) |
-| `FoS.DTA` | not attached yet | Needed for S28–S32 |
+| `WAGE1.DTA` | Stata data | Stata questions S1–S10, S13–S19 (526 obs; identical to the standard Wooldridge WAGE1) |
+| `FoS.DTA` | Stata data | Stata questions S28–S32 |
 
 ## Inventory (211 questions; no answer key in the PDF)
 
@@ -37,8 +37,6 @@ The PDF contains no answer key. Every answer was derived from the definitions an
 
 | ID | Issue | Handling |
 |---|---|---|
-| STATA-Q28, Q29, Q30, Q32 | Need `FoS.DTA`, which was not supplied | `answer: null`, `status: 'pending-data'`. Shown for learning but excluded from scoring and mocks. For Q28 the coefficient 0.219 is confirmed by W4-Q5's text, but its significance (option a vs b) can't be checked without the data. |
-| STATA-Q31 | Uses FoS.DTA | Answered **c (0.097)**. By the FWL theorem it equals the multiple-regression coefficient on `ent_math`, and W4-Q5 states that coefficient is 0.097. Re-confirm once the data arrives. |
 | STATA-Q18 | Option c ("female wage difference is $2.86 larger among married workers") can also be read as true, because the female gap becomes 2.86 *more negative* | Keyed **a**, which is the precise statement of the interaction. Note shown to the learner. |
 | STATA-Q12 | AEJfigs has 50 rows, 2 with missing `all` | Regression uses N = 48, as Stata would. Answer (b) is unaffected. |
 | W3-Q24 | Refers to "the previous question" | The data from W3-Q23 is restated in a note. |
@@ -58,4 +56,4 @@ No answer-key errors could be detected, because the source has no key.
 - Mock exams sample with balanced topic coverage (2–3 per topic) as the teacher describes. They can't reproduce the real paper, so a mock score is not a prediction.
 - Simulated Stata output (in variations) is realistic but synthetic. Original Stata questions show output re-created from the real data.
 - Progress is stored per browser (localStorage). Use Settings → Export/Import to move it.
-- The real exam's time limit is unknown, so the mock timer is configurable (default 40 min).
+- The mock timer defaults to the real exam's 90 minutes and can be shortened for speed practice.

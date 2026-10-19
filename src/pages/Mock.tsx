@@ -95,7 +95,7 @@ export function Mock() {
 
 function MockSetup({ onStart }: { onStart: (d: Draft) => void }) {
   const progress = useProgress();
-  const [minutes, setMinutes] = useState<number>(40);
+  const [minutes, setMinutes] = useState<number>(90);
   const [share, setShare] = useState(0.35);
   const start = () => {
     const rng = new Rng();
@@ -112,13 +112,13 @@ function MockSetup({ onStart }: { onStart: (d: Draft) => void }) {
       <div className="card">
         <h3>Time limit</h3>
         <div className="seg">
-          {[0, 20, 30, 40, 60].map((m) => (
+          {[0, 30, 45, 60, 90].map((m) => (
             <button key={m} className={minutes === m ? 'on' : ''} onClick={() => setMinutes(m)}>
               {m ? `${m} min` : 'Untimed'}
             </button>
           ))}
         </div>
-        <p className="muted small">Use the time your teacher announces for the PC-lab exam if you know it; otherwise 40 minutes (2 min per question) is a reasonable target.</p>
+        <p className="muted small">The real exam is 90 minutes for 20 questions (4.5 min each). Once you are comfortable, practise at 60 or 45 minutes to build a time buffer.</p>
         <h3>Question source</h3>
         <div className="seg">
           {(

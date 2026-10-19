@@ -117,6 +117,15 @@ describe('numerical answer key', () => {
     expect(v('S25').coefs.male.b).toBeCloseTo(3.11, 2);
     expect(v('S26').coefs['1.male#c.cigs'].p).toBeGreaterThan(0.05);
     expect(v('S27').coefs.zcigs.b).toBeCloseTo(-0.136, 3);
+    expect(v('S28').coefs.ent_math.b).toBeCloseTo(0.219, 3);
+    expect(v('S28').coefs.ent_math.p).toBeGreaterThan(0.05);
+    expect(v('S29').coefs.ent_ielts.b).toBeCloseTo(13.0, 1);
+    expect(v('S30').coefs.ent_math.p).toBeGreaterThan(0.05);
+    expect(v('S30').coefs.ent_ielts.p).toBeLessThan(0.05);
+    near('STATA-Q31', v('S31').fwl.coefs.u_math.b, 3);
+    expect(v('S31').fwl.coefs.u_math.b).toBeCloseTo(v('S31').full.coefs.ent_math.b, 6);
+    expect(v('S32').testF).toBeCloseTo(48.04, 2);
+    expect(QUESTIONS.every((q) => q.answer !== null)).toBe(true);
   });
 });
 

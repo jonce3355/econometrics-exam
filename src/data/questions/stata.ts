@@ -1,7 +1,5 @@
 import { section } from './helpers';
 
-const FOS_FLAG = 'Needs FoS.DTA (not supplied yet). The answer cannot be verified from the data, so this question is excluded from scoring and mock exams until the file is added and scripts/stata_outputs.py is re-run.';
-
 export const STATA = section('STATA', [
   {
     number: 1, skill: 'st-summary', stata: 'S1',
@@ -346,11 +344,12 @@ export const STATA = section('STATA', [
     code: 'use "FoS.DTA", clear\nreg marks_FoS ent_math',
     after: 'Which statement about `ent_math` is correct?',
     options: ['Its coefficient is about 0.22 and it is significant at 5%.', 'Its coefficient is about 0.22 and it is not significant at 5%.', 'Its coefficient is about 2.20 and it is significant at 1%.', 'Its coefficient is negative.'],
-    answer: null, status: 'pending-data',
-    understand: 'Read the coefficient and P>|t| on ent_math.',
-    steps: ['W4-Q5 states this simple-regression coefficient is 0.219, so options c and d are ruled out.', 'Whether it is significant (a vs b) requires the p-value from FoS.DTA.'],
-    why: 'Pending FoS.DTA.',
-    flags: [FOS_FLAG, 'Coefficient ≈ 0.219 is confirmed by the teacher\'s W4-Q5 text; significance is not yet verifiable.'],
+    answer: 'b',
+    understand: 'Read the coefficient and the P>|t| value on ent_math.',
+    steps: ['Coefficient on ent_math = 0.2193 ≈ 0.22 (positive).', 't = 0.2193 / 0.1198 = 1.83, P>|t| = 0.070.', '0.070 > 0.05 → not significant at 5% (it would be significant only at 10%).'],
+    why: 'Coefficient ≈ 0.22 with p = 0.070 > 0.05.',
+    wrong: { a: 'p = 0.070 is above 0.05.', c: 'Decimal shifted; and p = 0.070 is far from 1%.', d: 'The coefficient is +0.219.' },
+    trap: 'p = 0.070 is "close" to 0.05 — still not significant at 5%.',
   },
   {
     number: 29, skill: 'st-coef-interp', stata: 'S29',
@@ -358,11 +357,11 @@ export const STATA = section('STATA', [
     code: 'use "FoS.DTA", clear\nreg marks_FoS ent_ielts',
     after: 'How should the coefficient on `ent_ielts` be interpreted?',
     options: ['A one-point increase in IELTS is associated with about a 13-point increase in FoS marks.', 'A one-point increase in IELTS is associated with about a 1.3-point increase in FoS marks.', 'A 1% increase in IELTS is associated with a 13% increase in FoS marks.', 'IELTS has no statistically significant association with FoS marks.'],
-    answer: null, status: 'pending-data',
-    understand: 'Level–level slope: points of FoS marks per IELTS point.',
-    steps: ['Read the coefficient on ent_ielts (needs FoS.DTA).', 'Option c is wrong regardless (no logs).'],
-    why: 'Pending FoS.DTA.',
-    flags: [FOS_FLAG],
+    answer: 'a',
+    understand: 'Level–level slope: FoS marks per one IELTS point.',
+    steps: ['Coefficient on ent_ielts = 13.005.', 'Level–level → one more IELTS point ↔ about 13 more FoS marks.', '(t = 4.58, p = 0.000, so it is significant.)'],
+    why: 'Coefficient ≈ 13.0, in marks per IELTS point.',
+    wrong: { b: 'Decimal shifted.', c: 'No logs in the model, so no % interpretation.', d: 'p = 0.000 → highly significant.' },
   },
   {
     number: 30, skill: 'st-signif', stata: 'S30',
@@ -370,11 +369,11 @@ export const STATA = section('STATA', [
     code: 'use "FoS.DTA", clear\nreg marks_FoS ent_math ent_ielts',
     after: 'Which statement is correct at the 5% significance level?',
     options: ['Both `ent_math` and `ent_ielts` are statistically significant.', 'Only `ent_math` is statistically significant.', 'Only `ent_ielts` is statistically significant.', 'Neither variable is statistically significant.'],
-    answer: null, status: 'pending-data',
-    understand: 'Check both P>|t| values.',
-    steps: ['Needs the output from FoS.DTA.'],
-    why: 'Pending FoS.DTA.',
-    flags: [FOS_FLAG],
+    answer: 'c',
+    understand: 'Check both P>|t| values against 0.05.',
+    steps: ['ent_math: coef 0.097, t = 0.84, p = 0.406 > 0.05 → not significant.', 'ent_ielts: coef 12.25, t = 3.91, p = 0.000 < 0.05 → significant.'],
+    why: 'Only ent_ielts has p < 0.05.',
+    wrong: { a: 'ent_math p = 0.406.', b: 'Reversed.', d: 'ent_ielts p = 0.000.' },
   },
   {
     number: 31, skill: 'st-fwl', stata: 'S31',
@@ -384,10 +383,9 @@ export const STATA = section('STATA', [
     options: ['13.01', '12.25', '0.097', '0.219'],
     answer: 'c',
     understand: 'FWL → equals the coefficient on ent_math in the full regression (with ent_ielts).',
-    steps: ['W4-Q5 tells us the Math coefficient is 0.097 once IELTS is controlled for.', 'By FWL, the residual regression gives the same 0.097.'],
+    steps: ['Full regression: ent_math = 0.0968.', 'Residual regression: u_math = 0.0968 — identical, as FWL says.'],
     why: 'FWL theorem; 0.219 is the simple-regression coefficient without IELTS.',
-    wrong: { a: 'Looks like an IELTS coefficient.', b: 'Looks like an IELTS coefficient.', d: 'The simple-regression Math coefficient (no control).' },
-    flags: ['Answer derived from the FWL theorem plus the numbers stated in W4-Q5 (0.219 → 0.097). Re-confirm with FoS.DTA when available.'],
+    wrong: { a: 'IELTS coefficient in the simple regression.', b: 'IELTS coefficient in the full regression.', d: 'The simple-regression Math coefficient (no control).' },
   },
   {
     number: 32, skill: 'st-joint-f', stata: 'S32',
@@ -395,10 +393,10 @@ export const STATA = section('STATA', [
     code: 'use "FoS.DTA", clear\nreg marks_FoS marks_QM marks_AE\ntest marks_QM marks_AE',
     after: 'Based on the joint F test, which statement is correct?',
     options: ['`marks_QM` and `marks_AE` are jointly insignificant at 5%.', '`marks_QM` and `marks_AE` are jointly significant; the F statistic is about 48.04.', 'The joint F statistic is approximately 0.50.', 'The test can only be used if one of the two coefficients is zero in the unrestricted model.'],
-    answer: null, status: 'pending-data',
-    understand: 'Read F and Prob > F.',
-    steps: ['Needs FoS.DTA output. Option d is wrong regardless.'],
-    why: 'Pending FoS.DTA.',
-    flags: [FOS_FLAG],
+    answer: 'b',
+    understand: 'Read F and Prob > F from the test output.',
+    steps: ['F(2, 95) = 48.04, Prob > F = 0.0000.', '0.0000 < 0.05 → reject H₀: jointly significant.'],
+    why: 'F = 48.04 with p ≈ 0.',
+    wrong: { a: 'p < 0.05.', c: 'That is roughly R² (0.50), not F.', d: 'No such requirement.' },
   },
 ]);

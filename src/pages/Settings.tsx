@@ -65,11 +65,8 @@ export function Settings() {
         <h3>About the question bank</h3>
         <ul>
           <li>211 questions transcribed from “Mid-term bank of questions” (7 sections). The PDF contains no answer key; all answers were derived and the numerical ones are re-checked by automated tests.</li>
-          <li>Stata questions show output re-created from the data files (WAGE1 = standard Wooldridge WAGE1; BWGHT, KIELMC, AEJfigs supplied by you).</li>
-          <li>
-            FoS.DTA is missing: STATA-Q28, Q29, Q30 and Q32 are excluded from scoring until it is added. To add it, copy <code>FoS.DTA</code> into <code>data/</code> and run <code>python scripts/stata_outputs.py</code>, then set the answers in{' '}
-            <code>src/data/questions/stata.ts</code>.
-          </li>
+          <li>Stata questions show output re-created from the data files (WAGE1, BWGHT, KIELMC, AEJfigs and FoS, all supplied by you).</li>
+          <li>All 211 answers are verified; FoS questions were checked against FoS.DTA.</li>
         </ul>
       </div>
     </div>

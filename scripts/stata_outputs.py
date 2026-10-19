@@ -23,7 +23,11 @@ def load(name):
     for cand in (name, name.lower(), name.upper(), name.replace('.DTA', '.dta')):
         p = os.path.join(DATA, cand)
         if os.path.exists(p):
-            return pd.read_stata(p)
+            df = pd.read_stata(p)
+            # Stata stores small integers as int8; promote so that e.g. exper^2 cannot overflow.
+            num = df.select_dtypes('number').columns
+            df[num] = df[num].astype('float64')
+            return df
     if name.upper() == 'WAGE1.DTA':
         import wooldridge
         return wooldridge.data('wage1')

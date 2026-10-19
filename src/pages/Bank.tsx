@@ -40,7 +40,7 @@ export function Bank() {
         </div>
         <div className="stat">
           <div className="stat-value">{counts.pending}</div>
-          <div className="stat-label">pending FoS.DTA</div>
+          <div className="stat-label">pending data</div>
         </div>
         <div className="stat">
           <div className="stat-value">{counts.flagged}</div>
@@ -49,7 +49,7 @@ export function Bank() {
       </div>
       <div className="callout">
         <strong>How answers were verified.</strong> The PDF has no answer key, so every answer was worked out from the definitions and formulas on the teacher's formula sheet; numerical answers are recomputed in the automated tests, and every Stata question was
-        re-run on the supplied data (WAGE1 from the standard Wooldridge data set, BWGHT, KIELMC, AEJfigs). FoS.DTA was not supplied yet, so 4 FoS questions are marked pending and excluded from scoring.
+        re-run on the supplied data (WAGE1, BWGHT, KIELMC, AEJfigs, FoS).
       </div>
       <div className="toolbar">
         <select value={topic} onChange={(e) => setTopic(e.target.value)}>
