@@ -1195,3 +1195,19 @@ ul.plain li {
   margin: 0 6px 2px 0;
   font-size: 0.82rem;
 }
+
+/* full-bank exam: scrollable question grid */
+.exam-nav.long {
+  grid-template-columns: repeat(4, 1fr);
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
+  padding: 8px 4px 4px;
+}
+.exam-nav.long .navq {
+  font-size: 0.75rem;
+}
+@media (max-width: 800px) {
+  .exam-nav.long {
+    max-height: 180px;
+  }
+}

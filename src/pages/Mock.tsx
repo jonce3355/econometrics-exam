@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { SCORABLE } from '../data/bank';
+import { QUESTIONS, SCORABLE } from '../data/bank';
 import { TOPICS, skillById, topicById } from '../data/skills';
 import type { TopicId } from '../data/types';
 import { isNumericSkill } from '../data/generators';
@@ -56,6 +56,19 @@ export function buildExam(rng: Rng, variationShare: number): ViewQ[] {
   return rng.shuffle(items);
 }
 
+/** Every question in the bank (211), in random order, options shuffled, optionally with new numbers. */
+export function buildFullExam(rng: Rng, variationShare: number): ViewQ[] {
+  const items = SCORABLE.map((q) => {
+    const canVary = isNumericSkill(q.skill, skillById[q.skill].generator);
+    const v = canVary && rng.chance(variationShare) ? newVariation(q.skill, rng.int(1, 1e9)) : null;
+    return v ?? fromQuestion(q, true, rng);
+  });
+  return rng.shuffle(items);
+}
+
+/** Real-exam pace: 90 minutes for 20 questions = 4.5 minutes per question. */
+const PACE_SEC_PER_Q = 270;
+
 export function Mock() {
   const [draft, setDraft] = useState<Draft | null>(() => loadMockDraft<Draft>());
   const [finished, setFinished] = useState<Finished | null>(null);
@@ -97,10 +110,14 @@ function MockSetup({ onStart }: { onStart: (d: Draft) => void }) {
   const progress = useProgress();
   const [minutes, setMinutes] = useState<number>(90);
   const [share, setShare] = useState(0.35);
+  const [full, setFull] = useState(false);
+  const [fullPaced, setFullPaced] = useState(false);
+  const fullCount = SCORABLE.length;
   const start = () => {
     const rng = new Rng();
-    const items = buildExam(rng, share);
-    onStart({ id: `mock-${Date.now()}`, startedAt: Date.now(), timeLimitSec: minutes ? minutes * 60 : null, items, answers: items.map(() => null), flags: items.map(() => false), current: 0 });
+    const items = full ? buildFullExam(rng, share) : buildExam(rng, share);
+    const timeLimitSec = full ? (fullPaced ? items.length * PACE_SEC_PER_Q : null) : minutes ? minutes * 60 : null;
+    onStart({ id: `mock-${Date.now()}`, startedAt: Date.now(), timeLimitSec, items, answers: items.map(() => null), flags: items.map(() => false), current: 0 });
   };
   const past = [...progress.mocks].reverse();
   return (
@@ -110,15 +127,45 @@ function MockSetup({ onStart }: { onStart: (d: Draft) => void }) {
         Exactly {EXAM_SIZE} multiple-choice questions, 2–3 from each of the {TOPICS.length} topics (the teacher's stated format). No feedback until you submit. A mock score is practice evidence, not a prediction of your real mark.
       </p>
       <div className="card">
-        <h3>Time limit</h3>
+        <h3>Exam length</h3>
         <div className="seg">
-          {[0, 30, 45, 60, 90].map((m) => (
-            <button key={m} className={minutes === m ? 'on' : ''} onClick={() => setMinutes(m)}>
-              {m ? `${m} min` : 'Untimed'}
-            </button>
-          ))}
+          <button className={!full ? 'on' : ''} onClick={() => setFull(false)}>
+            Standard: {EXAM_SIZE} questions
+          </button>
+          <button className={full ? 'on' : ''} onClick={() => setFull(true)}>
+            Full bank: all {fullCount} questions
+          </button>
         </div>
-        <p className="muted small">The real exam is 90 minutes for 20 questions (4.5 min each). Once you are comfortable, practise at 60 or 45 minutes to build a time buffer.</p>
+        {full && (
+          <p className="muted small">
+            Every question from the teacher's bank ({QUESTIONS.length} in total) in random order, with shuffled options. Your answers are saved as you go, so you can close the tab and continue later.
+          </p>
+        )}
+        <h3>Time limit</h3>
+        {full ? (
+          <>
+            <div className="seg">
+              <button className={!fullPaced ? 'on' : ''} onClick={() => setFullPaced(false)}>
+                Untimed
+              </button>
+              <button className={fullPaced ? 'on' : ''} onClick={() => setFullPaced(true)}>
+                Exam pace: 4.5 min per question ({fmtTime(fullCount * PACE_SEC_PER_Q)})
+              </button>
+            </div>
+            <p className="muted small">The timer keeps running if you close the tab, so an untimed run is usually better for the full bank.</p>
+          </>
+        ) : (
+          <>
+            <div className="seg">
+              {[0, 30, 45, 60, 90].map((m) => (
+                <button key={m} className={minutes === m ? 'on' : ''} onClick={() => setMinutes(m)}>
+                  {m ? `${m} min` : 'Untimed'}
+                </button>
+              ))}
+            </div>
+            <p className="muted small">The real exam is 90 minutes for 20 questions (4.5 min each). Once you are comfortable, practise at 60 or 45 minutes to build a time buffer.</p>
+          </>
+        )}
         <h3>Question source</h3>
         <div className="seg">
           {(
@@ -126,6 +173,7 @@ function MockSetup({ onStart }: { onStart: (d: Draft) => void }) {
               [0, 'Original questions only'],
               [0.35, 'Mix: ~⅓ with new numbers'],
               [0.7, 'Mostly new numbers'],
+              [1, 'New numbers wherever possible'],
             ] as const
           ).map(([v, l]) => (
             <button key={l} className={share === v ? 'on' : ''} onClick={() => setShare(v)}>
@@ -136,7 +184,7 @@ function MockSetup({ onStart }: { onStart: (d: Draft) => void }) {
         <p className="muted small">New-number versions are generated from the same solving method as the original and their answers are recalculated, imitating how the teacher may change values.</p>
         <div className="actions">
           <button className="btn primary big" onClick={start}>
-            Start mock exam
+            {full ? `Start full-bank exam (${fullCount} questions)` : 'Start mock exam'}
           </button>
         </div>
       </div>
@@ -191,7 +239,7 @@ function MockRun({ draft, setDraft, onFinish }: { draft: Draft; setDraft: (d: Dr
   return (
     <div className="exam">
       <div className="exam-bar">
-        <strong>Mock exam</strong>
+        <strong>{draft.items.length > EXAM_SIZE ? 'Full-bank exam' : 'Mock exam'}</strong>
         <span>
           Answered {answered}/{draft.items.length}
         </span>
@@ -201,7 +249,7 @@ function MockRun({ draft, setDraft, onFinish }: { draft: Draft; setDraft: (d: Dr
         </button>
       </div>
       <div className="exam-layout">
-        <nav className="exam-nav" aria-label="Questions">
+        <nav className={`exam-nav ${draft.items.length > EXAM_SIZE ? 'long' : ''}`} aria-label="Questions">
           {draft.items.map((_, j) => (
             <button key={j} className={`navq ${j === i ? 'cur' : ''} ${draft.answers[j] !== null ? 'ans' : ''} ${draft.flags[j] ? 'flag' : ''}`} onClick={() => set({ current: j })}>
               {j + 1}
@@ -228,6 +276,17 @@ function MockRun({ draft, setDraft, onFinish }: { draft: Draft; setDraft: (d: Dr
             <button className="btn primary" disabled={i === draft.items.length - 1} onClick={() => set({ current: i + 1 })}>
               Next →
             </button>
+            {draft.items.length > EXAM_SIZE && answered < draft.items.length && (
+              <button
+                className="btn ghost"
+                onClick={() => {
+                  const n = draft.answers.findIndex((a, j) => a === null && j > i);
+                  set({ current: n >= 0 ? n : draft.answers.findIndex((a) => a === null) });
+                }}
+              >
+                Next unanswered ⇥
+              </button>
+            )}
           </div>
         </div>
       </div>
